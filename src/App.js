@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import FileUploader from "./components/FileUploader";
 import GraphButtons from "./components/GraphButtons";
 import Chart from "./components/Chart";
+import SynthWave from "./components/SynthWave";
 import "./styles.css";
 
 const App = () => {
@@ -52,13 +53,21 @@ const App = () => {
 		const listeningHistory = {};
 
 		data.forEach((entry) => {
-			const artist = entry.master_metadata_album_artist_name;
-			const song = entry.master_metadata_track_name;
-			const playedAt = new Date(entry.ts);
+			const isNewFormat =
+				entry.artistName && entry.trackName && entry.endTime;
+
+			const artist = isNewFormat
+				? entry.artistName
+				: entry.master_metadata_album_artist_name;
+			const song = isNewFormat
+				? entry.trackName
+				: entry.master_metadata_track_name;
+			const playedAt = new Date(isNewFormat ? entry.endTime : entry.ts);
 
 			if (artist && artist !== "Unknown Artist") {
 				topArtists[artist] = (topArtists[artist] || 0) + 1;
 			}
+
 			if (song && song !== "Unknown Song") {
 				topSongs[song] = (topSongs[song] || 0) + 1;
 			}
@@ -85,52 +94,9 @@ const App = () => {
 		setSelectedChart("topArtists");
 	};
 
-	const fadeOutIntro = () => {
-		const intro = document.getElementById("welcome-intro");
-		intro.style.transition = "opacity 1s";
-		intro.style.opacity = "0";
-		setTimeout(() => {
-			intro.style.display = "none";
-			document.getElementById("content").style.display = "block";
-		}, 1000);
-	};
-
 	return (
 		<div>
-			<div id="welcome-intro">
-				<div className="synth-wave">
-					<div className="bar"></div>
-					<div className="bar"></div>
-					<div className="bar"></div>
-					<div className="bar"></div>
-					<div className="bar"></div>
-					<div className="bar"></div>
-					<div className="bar"></div>
-					<div className="bar"></div>
-					<div className="bar"></div>
-					<div className="bar"></div>
-				</div>
-				<div className="button-container">
-					<button
-						id="continue-button"
-						className="button-common hidden"
-						onClick={fadeOutIntro}>
-						Let's Unwrap
-					</button>
-				</div>
-				<div className="synth-wave2">
-					<div className="bar2"></div>
-					<div className="bar2"></div>
-					<div className="bar2"></div>
-					<div className="bar2"></div>
-					<div className="bar2"></div>
-					<div className="bar2"></div>
-					<div className="bar2"></div>
-					<div className="bar2"></div>
-					<div className="bar2"></div>
-					<div className="bar2"></div>
-				</div>
-			</div>
+			<SynthWave />
 			<div id="content" className="content" style={{ display: "none" }}>
 				<div className="container">
 					<h1>Unwrapped</h1>

@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from "react";
 import { Chart, registerables } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
-// Register Chart.js components and the Data Labels plugin
 Chart.register(...registerables, ChartDataLabels);
 
 const ChartComponent = ({ data, title, isTimeSeries }) => {
@@ -27,7 +26,7 @@ const ChartComponent = ({ data, title, isTimeSeries }) => {
 				{
 					label: title,
 					data: values,
-					backgroundColor: "rgba(75, 192, 192, 0.2)",
+					backgroundColor: "rgba(75, 192, 192, .2)",
 					borderColor: "rgba(75, 192, 192, 1)",
 					borderWidth: 1,
 				},
@@ -65,18 +64,45 @@ const ChartComponent = ({ data, title, isTimeSeries }) => {
 			},
 		};
 
+		// Create and apply gradient background to the chart
+		const gradientBackground = ctx.createLinearGradient(
+			0,
+			0,
+			canvasRef.current.width,
+			0
+		);
+		gradientBackground.addColorStop(0.3, "rgb(0, 10, 14)");
+		gradientBackground.addColorStop(0.7, "rgb(0, 24, 30)");
+		gradientBackground.addColorStop(0.5, "rgb(0, 35, 41)");
+
+		const drawBackground = () => {
+			ctx.save();
+			ctx.globalCompositeOperation = "destination-over";
+			ctx.fillStyle = gradientBackground;
+			ctx.fillRect(
+				0,
+				0,
+				canvasRef.current.width,
+				canvasRef.current.height
+			);
+			ctx.restore();
+		};
+
+		// Create the chart instance
 		let chartInstance;
 		if (isTimeSeries) {
 			chartInstance = new Chart(ctx, {
 				type: "line",
 				data: chartData,
 				options: options,
+				plugins: [{ beforeDraw: drawBackground }], // Apply the background before drawing the chart
 			});
 		} else {
 			chartInstance = new Chart(ctx, {
 				type: "bar",
 				data: chartData,
 				options: options,
+				plugins: [{ beforeDraw: drawBackground }], // Apply the background before drawing the chart
 			});
 		}
 
@@ -87,6 +113,7 @@ const ChartComponent = ({ data, title, isTimeSeries }) => {
 		};
 	}, [data, title, isTimeSeries]);
 
+	// Download the chart as an image
 	const downloadImage = () => {
 		const link = document.createElement("a");
 		link.href = canvasRef.current.toDataURL("image/png");
@@ -95,7 +122,7 @@ const ChartComponent = ({ data, title, isTimeSeries }) => {
 	};
 
 	return (
-		<div>
+		<div className="canvas-bg">
 			<canvas ref={canvasRef} width={800} height={600} />
 			<button className="select-button" onClick={downloadImage}>
 				Download Chart

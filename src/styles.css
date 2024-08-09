@@ -238,3 +238,10 @@ canvas {
 	opacity: 1;
 	transform: perspective(1);
 }
+
+.jacob {
+	margin-top: 700px;
+	position: absolute;
+	font-size: 10px;
+	margin-left: 300px;
+}
